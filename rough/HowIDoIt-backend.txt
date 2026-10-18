@@ -1,0 +1,45 @@
+1. create 1 main folder -> fitness
+2. created 2 sub-folder -> fitness-app(client) and fitness-app-backend (server)
+
+3. first i am going to build backend then i am going to build frontend
+
+//backend
+4. change the directory to server (now thats our main directory)
+5. npm init -y
+6. npm install  express (api framwork) 
+                mongoose (for defining modal) 
+                cors (for connecting frontend and backend) 
+                dotenv (for keeping secure env variables) 
+                zod (for input validation)
+                
+7. npm  -D (development dependency not required in production) 
+        nodemon (for restart automatically the server)
+
+//now before writing any code , 
+1. i want to mention that i am going to use feature based architecture (rather then conventional architecture)
+2. update (add) scripts in package.json -> "dev" : "nodemon src/server.js"
+                                        -> "start": "node src/server.js"
+                                        ->  "type": "module",
+3. now create some folders or files in server
+
+so currently my directory tree is looks like that (using file-tree-generator VS CODE EXTENSION)                        
+
+server
+ ┣ node_modules
+ ┣ rough
+ ┃ ┣ HowIDoIt-backend
+ ┣ src
+ ┃ ┣ config
+ ┃ ┃ ┗ database.js
+ ┃ ┣ features
+ ┃ ┃ ┗ items
+ ┃ ┣ middleware
+ ┃ ┣ app.js
+ ┃ ┗ server.js
+ ┣ .env
+ ┣ .gitignore
+ ┣ howIDoIt.txt
+ ┣ package-lock.json
+ ┗ package.json
+
+before moving further our main content code (lost & found item) will lie in featurs/items/ folder (thats the beauty of feature based architecture)
