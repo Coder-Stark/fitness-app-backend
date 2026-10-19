@@ -43,3 +43,10 @@ server
  ┗ package.json
 
 before moving further our main content code (lost & found item) will lie in featurs/items/ folder (thats the beauty of feature based architecture)
+
+//see My progress
+
+
+//commands
+-> npm i bcryptjs jsonwebtoken
+-> node -p "require('crypto').randomBytes(32).toString('hex')"       //generate jwt secret key

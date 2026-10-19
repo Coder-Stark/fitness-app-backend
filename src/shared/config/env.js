@@ -5,6 +5,8 @@ const schema = z.object({
   PORT: z.coerce.number().default(5000),
   MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
   CLIENT_URL: z.string().min(1, "CLIENT_URL is required"),
+  JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
+  JWT_EXPIRES_IN: z.string().default("7d"),
 });
 
 const parsed = schema.safeParse(process.env);

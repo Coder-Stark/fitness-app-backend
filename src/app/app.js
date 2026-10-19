@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { env } from "../shared/config/env.js";
 import { notFound, errorHandler } from "../shared/middlewares/error.middleware.js";
+import authRoutes from "../features/auth/auth.routes.js";
+import zoneRoutes from "../features/zones/zone.routes.js";
 
 const app = express();
 
@@ -13,7 +15,8 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Phase 1+: mount feature routes here, e.g. app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/zones", zoneRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
