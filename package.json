@@ -2,11 +2,11 @@
   "name": "fitness-app-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "src/app/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "dev": "nodemon src/app/server.js",
+    "start": "node src/app/server.js"
   },
   "keywords": [],
   "author": "",

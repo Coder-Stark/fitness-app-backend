@@ -1,12 +1,24 @@
 /*
 node_modules
 rough
+ ┣ directoryTree-backend.js
+ ┣ HowIDoIt-backend.txt
+
 src
- ┣ config
- ┃ ┗ database.js
+ ┣ app
+ ┃ ┣ app.js
+ ┃ ┗ server.js
  ┣ features
- ┣ app.js
- ┗ server.js
+ ┃ ┗ .gitkeep
+ ┗ shared
+ ┃ ┣ config
+ ┃ ┃ ┣ db.js
+ ┃ ┃ ┗ env.js
+ ┃ ┣ middlewares
+ ┃ ┃ ┗ error.middleware.js
+ ┃ ┗ utils
+ ┃ ┃ ┗ AppError.js
+
 .env
 .env.sample
 .gitignore
