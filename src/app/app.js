@@ -4,6 +4,7 @@ import { env } from "../shared/config/env.js";
 import { notFound, errorHandler } from "../shared/middlewares/error.middleware.js";
 import authRoutes from "../features/auth/auth.routes.js";
 import zoneRoutes from "../features/zones/zone.routes.js";
+import pricingRoutes from "../features/pricing/pricing.routes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/zones", zoneRoutes);
+app.use("/api/pricing", pricingRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
