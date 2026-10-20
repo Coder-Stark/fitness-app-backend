@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ROLE_VALUES, default: ROLES.CUSTOMER, required: true },
     zone: { type: mongoose.Schema.Types.ObjectId, ref: "Zone", default: null },
     location: { type: locationSchema, default: null },
+    lockVersion: { type: Number, default: 0, select: false },
   },
   { timestamps: true }
 );

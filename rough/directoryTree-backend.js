@@ -9,17 +9,38 @@ src
  ┃ ┣ app.js
  ┃ ┗ server.js
  ┣ features
+ ┃ ┣ assignment
+ ┃ ┃ ┗ assignment.service.js
  ┃ ┣ auth
  ┃ ┃ ┣ auth.controller.js
  ┃ ┃ ┣ auth.routes.js
  ┃ ┃ ┣ auth.service.js
  ┃ ┃ ┗ auth.validation.js
+ ┃ ┣ availability
+ ┃ ┃ ┣ availability.controller.js
+ ┃ ┃ ┣ availability.model.js
+ ┃ ┃ ┣ availability.routes.js
+ ┃ ┃ ┣ availability.service.js
+ ┃ ┃ ┗ availability.validation.js
+ ┃ ┣ bookings
+ ┃ ┃ ┣ booking.config.js
+ ┃ ┃ ┣ booking.constants.js
+ ┃ ┃ ┣ booking.controller.js
+ ┃ ┃ ┣ booking.model.js
+ ┃ ┃ ┣ booking.routes.js
+ ┃ ┃ ┣ booking.service.js
+ ┃ ┃ ┗ booking.validation.js
  ┃ ┣ pricing
  ┃ ┃ ┣ pricing.config.js
  ┃ ┃ ┣ pricing.controller.js
  ┃ ┃ ┣ pricing.routes.js
  ┃ ┃ ┣ pricing.service.js
  ┃ ┃ ┗ pricing.validation.js
+ ┃ ┣ slots
+ ┃ ┃ ┣ slot.controller.js
+ ┃ ┃ ┣ slot.routes.js
+ ┃ ┃ ┣ slot.service.js
+ ┃ ┃ ┗ slot.validation.js
  ┃ ┣ trainers
  ┃ ┃ ┣ trainer.model.js
  ┃ ┃ ┗ trainer.service.js
@@ -46,7 +67,11 @@ src
  ┃ ┃ ┗ location.schema.js
  ┃ ┗ utils
  ┃ ┃ ┣ AppError.js
+ ┃ ┃ ┣ geo.js
+ ┃ ┃ ┣ lock.js
+ ┃ ┃ ┣ time.js
  ┃ ┃ ┗ token.js
+
 .env
 .env.sample
 .gitignore

@@ -5,6 +5,8 @@ import { User } from "../src/features/users/user.model.js";
 import { ROLES } from "../src/features/users/user.constants.js";
 import { Zone } from "../src/features/zones/zone.model.js";
 import { Trainer } from "../src/features/trainers/trainer.model.js";
+import { Availability } from "../src/features/availability/availability.model.js";
+import { Booking } from "../src/features/bookings/booking.model.js";
 
 const DEMO_PASSWORD = "Demo@1234";
 
@@ -22,7 +24,13 @@ const near = (center, dLat, dLng) => ({
 async function seed() {
   await connectDB();
 
-  await Promise.all([Trainer.deleteMany({}), User.deleteMany({}), Zone.deleteMany({})]);
+  await Promise.all([
+    Booking.deleteMany({}),
+    Availability.deleteMany({}),
+    Trainer.deleteMany({}),
+    User.deleteMany({}),
+    Zone.deleteMany({}),
+  ]);
 
   const zones = await Zone.insertMany(zoneData);
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
@@ -34,11 +42,39 @@ async function seed() {
     role: ROLES.ADMIN,
   });
 
+  const hours = (days, start, end) => days.map((day) => ({ day, start, end }));
+  const MON_SAT = [1, 2, 3, 4, 5, 6];
+  const EVERY_DAY = [0, ...MON_SAT];
+
   const trainerData = [
-    { name: "Arjun Mehta", email: "trainer@demo.com", zone: 0, offset: [0.002, 0.001] },
-    { name: "Meera Iyer", email: "meera.trainer@demo.com", zone: 0, offset: [-0.004, 0.003] },
-    { name: "Rohan Verma", email: "rohan.trainer@demo.com", zone: 1, offset: [0.001, -0.002] },
-    { name: "Sneha Kapoor", email: "sneha.trainer@demo.com", zone: 2, offset: [-0.002, 0.002] },
+    {
+      name: "Arjun Mehta",
+      email: "trainer@demo.com",
+      zone: 0,
+      offset: [0.002, 0.001],
+      schedule: hours(EVERY_DAY, "06:00", "21:00"),
+    },
+    {
+      name: "Meera Iyer",
+      email: "meera.trainer@demo.com",
+      zone: 0,
+      offset: [-0.004, 0.003],
+      schedule: [...hours(MON_SAT, "06:00", "12:00"), ...hours(MON_SAT, "16:00", "21:00")],
+    },
+    {
+      name: "Rohan Verma",
+      email: "rohan.trainer@demo.com",
+      zone: 1,
+      offset: [0.001, -0.002],
+      schedule: hours(MON_SAT, "06:00", "21:00"),
+    },
+    {
+      name: "Sneha Kapoor",
+      email: "sneha.trainer@demo.com",
+      zone: 2,
+      offset: [-0.002, 0.002],
+      schedule: hours(EVERY_DAY, "06:00", "21:00"),
+    },
   ];
 
   for (const t of trainerData) {
@@ -52,13 +88,15 @@ async function seed() {
       zone: zone._id,
       location,
     });
-    await Trainer.create({ user: user._id, zone: zone._id, location });
+    const trainer = await Trainer.create({ user: user._id, zone: zone._id, location });
+    await Availability.create({ trainer: trainer._id, weeklySchedule: t.schedule });
   }
 
   const customerData = [
     { name: "Aarav Sharma", email: "customer@demo.com", zone: 0, offset: [0.001, -0.001] },
     { name: "Diya Singh", email: "diya.customer@demo.com", zone: 0, offset: [-0.002, 0.002] },
     { name: "Kabir Malhotra", email: "kabir.customer@demo.com", zone: 1, offset: [0.002, 0.001] },
+    { name: "Nisha Rao", email: "nisha.customer@demo.com", zone: 1, offset: [-0.001, 0.002] },
     { name: "Isha Reddy", email: "isha.customer@demo.com", zone: 2, offset: [0.001, 0.003] },
   ];
 

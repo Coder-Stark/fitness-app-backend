@@ -7,6 +7,7 @@ const trainerSchema = new mongoose.Schema(
     zone: { type: mongoose.Schema.Types.ObjectId, ref: "Zone", required: true },
     location: { type: locationSchema, required: true },
     isActive: { type: Boolean, default: true },
+    lockVersion: { type: Number, default: 0, select: false },
   },
   { timestamps: true }
 );

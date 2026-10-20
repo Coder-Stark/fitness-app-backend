@@ -1,3 +1,5 @@
+import { AppError } from "../../shared/utils/AppError.js";
+import { lockDocument } from "../../shared/utils/lock.js";
 import { User } from "./user.model.js";
 
 const ZONE_FIELDS = "name center radiusKm";
@@ -14,6 +16,15 @@ export function findUserById(id) {
 export function createUser(data) {
   return User.create(data);
 }
+
+export async function getCustomerWithZone(userId) {
+  const user = await findUserById(userId);
+  if (!user) throw new AppError("User not found", 404);
+  if (!user.zone) throw new AppError("Your account has no service zone", 400);
+  return user;
+}
+
+export const lockUser = (userId, session) => lockDocument(User, userId, session);
 
 export function toPublicUser(user) {
   return {

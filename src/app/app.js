@@ -5,6 +5,9 @@ import { notFound, errorHandler } from "../shared/middlewares/error.middleware.j
 import authRoutes from "../features/auth/auth.routes.js";
 import zoneRoutes from "../features/zones/zone.routes.js";
 import pricingRoutes from "../features/pricing/pricing.routes.js";
+import availabilityRoutes from "../features/availability/availability.routes.js";
+import slotRoutes from "../features/slots/slot.routes.js";
+import bookingRoutes from "../features/bookings/booking.routes.js";
 
 const app = express();
 
@@ -19,6 +22,9 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/zones", zoneRoutes);
 app.use("/api/pricing", pricingRoutes);
+app.use("/api/availability", availabilityRoutes);
+app.use("/api/slots", slotRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
