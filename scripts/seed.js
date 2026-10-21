@@ -7,6 +7,8 @@ import { Zone } from "../src/features/zones/zone.model.js";
 import { Trainer } from "../src/features/trainers/trainer.model.js";
 import { Availability } from "../src/features/availability/availability.model.js";
 import { Booking } from "../src/features/bookings/booking.model.js";
+import { Payment } from "../src/features/payments/payment.model.js";
+import { Package } from "../src/features/packages/package.model.js";
 
 const DEMO_PASSWORD = "Demo@1234";
 
@@ -25,6 +27,8 @@ async function seed() {
   await connectDB();
 
   await Promise.all([
+    Payment.deleteMany({}),
+    Package.deleteMany({}),
     Booking.deleteMany({}),
     Availability.deleteMany({}),
     Trainer.deleteMany({}),

@@ -5,6 +5,7 @@ import {
   BOOKING_STATUS,
   BOOKING_STATUS_VALUES,
 } from "./booking.constants.js";
+import { PAYMENT_METHOD_VALUES } from "../payments/payment.constants.js";
 
 const priceSchema = new mongoose.Schema(
   {
@@ -34,6 +35,28 @@ const assignmentSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const paymentInfoSchema = new mongoose.Schema(
+  {
+    method: { type: String, enum: PAYMENT_METHOD_VALUES, required: true },
+    amountPaid: { type: Number, required: true, min: 0 }, // paise
+    status: { type: String, enum: ["paid", "refunded", "not_refunded"], default: "paid" },
+    paymentId: { type: mongoose.Schema.Types.ObjectId, ref: "Payment", required: true },
+    packageId: { type: mongoose.Schema.Types.ObjectId, ref: "Package", default: null },
+  },
+  { _id: false }
+);
+
+const cancellationSchema = new mongoose.Schema(
+  {
+    cancelledAt: { type: Date, required: true },
+    cancelledBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    reason: { type: String, default: null },
+    refundable: { type: Boolean, required: true },
+    outcome: { type: String, enum: ["session_restored", "amount_refunded", "no_refund"], required: true },
+  },
+  { _id: false }
+);
+
 const bookingSchema = new mongoose.Schema(
   {
     customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -45,6 +68,8 @@ const bookingSchema = new mongoose.Schema(
     status: { type: String, enum: BOOKING_STATUS_VALUES, default: BOOKING_STATUS.CONFIRMED },
     price: { type: priceSchema, required: true }, // snapshot, later config changes don't affect it
     assignment: { type: assignmentSchema, required: true },
+    payment: { type: paymentInfoSchema, required: true },
+    cancellation: { type: cancellationSchema, default: null },
   },
   { timestamps: true }
 );

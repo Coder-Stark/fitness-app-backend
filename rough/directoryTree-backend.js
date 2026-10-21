@@ -3,6 +3,8 @@ node_modules
 rough
  ┣ directoryTree-backend.js
  ┣ HowIDoIt-backend.txt
+ scripts
+ ┣ seed.js
 
 src
  ┣ app
@@ -30,6 +32,17 @@ src
  ┃ ┃ ┣ booking.routes.js
  ┃ ┃ ┣ booking.service.js
  ┃ ┃ ┗ booking.validation.js
+ ┃ ┣ packages
+ ┃ ┃ ┣ package.config.js
+ ┃ ┃ ┣ package.controller.js
+ ┃ ┃ ┣ package.model.js
+ ┃ ┃ ┣ package.routes.js
+ ┃ ┃ ┣ package.service.js
+ ┃ ┃ ┗ package.validation.js
+ ┃ ┣ payments
+ ┃ ┃ ┣ payment.constants.js
+ ┃ ┃ ┣ payment.model.js
+ ┃ ┃ ┗ payment.service.js
  ┃ ┣ pricing
  ┃ ┃ ┣ pricing.config.js
  ┃ ┃ ┣ pricing.controller.js
@@ -60,6 +73,7 @@ src
  ┃ ┃ ┗ env.js
  ┃ ┣ middlewares
  ┃ ┃ ┣ error.middleware.js
+ ┃ ┃ ┣ idempotency.middleware.js
  ┃ ┃ ┣ jwt.middleware.js
  ┃ ┃ ┣ role.middleware.js
  ┃ ┃ ┗ validate.middleware.js

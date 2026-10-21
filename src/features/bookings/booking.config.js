@@ -6,4 +6,5 @@ export const bookingConfig = Object.freeze({
   scheduledMinLeadMinutes: 60, // anything sooner is an instant booking
   maxAdvanceDays: 7,
   alternativeSlotsLimit: 5,
+  freeCancellationMinutes: 120, // cancel at least this long before start to get a refund
 });
