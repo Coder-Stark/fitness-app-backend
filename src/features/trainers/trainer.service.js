@@ -20,3 +20,8 @@ export function listActiveTrainersInZone(zoneId, session = null) {
 }
 
 export const lockTrainer = (trainerId, session) => lockDocument(Trainer, trainerId, session);
+
+export async function getTrainerUserId(trainerId, session = null) {
+  const trainer = await Trainer.findById(trainerId).select("user").session(session).lean();
+  return trainer?.user ?? null;
+}

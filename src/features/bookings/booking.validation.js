@@ -31,3 +31,11 @@ export const bookingIdParamSchema = z.object({ id: objectId });
 export const cancelBookingSchema = z
   .object({ reason: z.string().trim().max(200).optional() })
   .optional();
+
+export const rescheduleBookingSchema = z.object({
+  startTime: z.iso.datetime({
+    offset: true,
+    error: "startTime must be an ISO 8601 date-time, e.g. 2026-10-21T10:00:00+05:30",
+  }),
+  preferredTrainerId: objectId.nullish(),
+});

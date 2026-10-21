@@ -32,6 +32,13 @@ src
  ┃ ┃ ┣ booking.routes.js
  ┃ ┃ ┣ booking.service.js
  ┃ ┃ ┗ booking.validation.js
+ ┃ ┣ notifications
+ ┃ ┃ ┣ notification.constants.js
+ ┃ ┃ ┣ notification.controller.js
+ ┃ ┃ ┣ notification.model.js
+ ┃ ┃ ┣ notification.routes.js
+ ┃ ┃ ┣ notification.service.js
+ ┃ ┃ ┗ notification.validation.js
  ┃ ┣ packages
  ┃ ┃ ┣ package.config.js
  ┃ ┃ ┣ package.controller.js

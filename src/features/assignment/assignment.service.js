@@ -6,16 +6,29 @@ import { listActiveTrainersInZone } from "../trainers/trainer.service.js";
 
 // Loads everything needed to decide who is free, in three reads (kept sequential so
 // it is safe inside a transaction).
-export async function loadSchedulingData(zoneId, rangeStart, rangeEnd, session = null) {
+export async function loadSchedulingData(
+  zoneId,
+  rangeStart,
+  rangeEnd,
+  session = null,
+  excludeBookingId = null
+) {
   const trainers = await listActiveTrainersInZone(zoneId, session);
   if (trainers.length === 0) return [];
 
   const ids = trainers.map((trainer) => trainer._id);
   const schedules = await getSchedulesForTrainers(ids, session);
-  const bookings = await Booking.findActiveForTrainers(ids, rangeStart, rangeEnd, session);
+  const bookings = await Booking.findActiveForTrainers(
+    ids,
+    rangeStart,
+    rangeEnd,
+    session,
+    excludeBookingId
+  );
 
   return trainers.map((trainer) => ({
     id: String(trainer._id),
+    userId: trainer.user?._id ? String(trainer.user._id) : null,
     name: trainer.user?.name ?? "Trainer",
     location: trainer.location,
     schedule: schedules.get(String(trainer._id)) ?? [],

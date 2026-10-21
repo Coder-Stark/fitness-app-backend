@@ -23,7 +23,11 @@ const priceSchema = new mongoose.Schema(
 
 const assignmentSchema = new mongoose.Schema(
   {
-    strategy: { type: String, enum: ["preferred_trainer", "nearest_available"], required: true },
+    strategy: {
+      type: String,
+      enum: ["preferred_trainer", "nearest_available", "kept_current_trainer"],
+      required: true,
+    },
     preferredTrainer: { type: mongoose.Schema.Types.ObjectId, ref: "Trainer", default: null },
     preferredHonoured: { type: Boolean, default: false },
     eligibleCount: Number,
@@ -57,6 +61,16 @@ const cancellationSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const rescheduleSchema = new mongoose.Schema(
+  {
+    previousStartTime: { type: Date, required: true },
+    previousEndTime: { type: Date, required: true },
+    previousTrainer: { type: mongoose.Schema.Types.ObjectId, ref: "Trainer", required: true },
+    rescheduledAt: { type: Date, required: true },
+  },
+  { _id: false }
+);
+
 const bookingSchema = new mongoose.Schema(
   {
     customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -70,6 +84,7 @@ const bookingSchema = new mongoose.Schema(
     assignment: { type: assignmentSchema, required: true },
     payment: { type: paymentInfoSchema, required: true },
     cancellation: { type: cancellationSchema, default: null },
+    rescheduleHistory: { type: [rescheduleSchema], default: [] },
   },
   { timestamps: true }
 );
@@ -77,12 +92,19 @@ const bookingSchema = new mongoose.Schema(
 bookingSchema.index({ trainer: 1, status: 1, startTime: 1 });
 bookingSchema.index({ customer: 1, status: 1, startTime: 1 });
 
-bookingSchema.statics.findActiveForTrainers = function (trainerIds, from, to, session = null) {
+bookingSchema.statics.findActiveForTrainers = function (
+  trainerIds,
+  from,
+  to,
+  session = null,
+  excludeBookingId = null
+) {
   return this.find({
     trainer: { $in: trainerIds },
     status: { $in: ACTIVE_BOOKING_STATUSES },
     startTime: { $lt: to },
     endTime: { $gt: from },
+    ...(excludeBookingId && { _id: { $ne: excludeBookingId } }),
   })
     .select("trainer startTime endTime")
     .session(session)

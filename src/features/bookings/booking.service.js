@@ -24,8 +24,18 @@ import {
 } from "../payments/payment.service.js";
 import { calculatePrice } from "../pricing/pricing.service.js";
 import { computeInstantStart, findAlternativeSlots } from "../slots/slot.service.js";
-import { getTrainerProfileOrThrow, lockTrainer } from "../trainers/trainer.service.js";
-import { getCustomerWithZone, lockUser } from "../users/user.service.js";
+import {
+  notifyAssigned,
+  notifyCancelled,
+  notifyMovedAway,
+  notifyRescheduled,
+} from "../notifications/notification.service.js";
+import {
+  getTrainerProfileOrThrow,
+  getTrainerUserId,
+  lockTrainer,
+} from "../trainers/trainer.service.js";
+import { findUserById, getCustomerWithZone, lockUser } from "../users/user.service.js";
 import { bookingConfig } from "./booking.config.js";
 import { ACTIVE_BOOKING_STATUSES, BOOKING_MODES, BOOKING_STATUS } from "./booking.constants.js";
 import { Booking } from "./booking.model.js";
@@ -49,6 +59,12 @@ function serializeBooking(booking) {
         }
       : null,
     cancellation: booking.cancellation ?? null,
+    rescheduleCount: booking.rescheduleHistory?.length ?? 0,
+    rescheduleHistory: (booking.rescheduleHistory ?? []).map((entry) => ({
+      previousStartTime: entry.previousStartTime,
+      previousEndTime: entry.previousEndTime,
+      rescheduledAt: entry.rescheduledAt,
+    })),
     trainer: booking.trainer?.user
       ? { id: booking.trainer._id, name: booking.trainer.user.name }
       : null,
@@ -225,6 +241,13 @@ export async function createBooking(customerId, input, idempotencyKey) {
       ],
       { session }
     );
+
+    await notifyAssigned(session, {
+      trainerUserId: trainer.userId,
+      bookingId,
+      customerName: customer.name,
+      startTime: start,
+    });
   });
 
   if (replayedPayment) return replayBooking(replayedPayment, requestHash);
@@ -267,6 +290,7 @@ export async function listAssignedBookings(userId) {
 
 
 export async function cancelBooking(customerId, bookingId, reason) {
+  const customer = await findUserById(customerId);
   let result = null;
 
   await mongoose.connection.transaction(async (session) => {
@@ -329,9 +353,207 @@ export async function cancelBooking(customerId, bookingId, reason) {
       );
     }
 
+    const trainerUserId = await getTrainerUserId(booking.trainer, session);
+    if (trainerUserId) {
+      await notifyCancelled(session, {
+        trainerUserId,
+        bookingId: booking._id,
+        customerName: customer.name,
+        startTime: booking.startTime,
+      });
+    }
+
     result = { booking: updated, alreadyCancelled: false };
   });
 
   await result.booking.populate(POPULATE_TRAINER);
   return { booking: serializeBooking(result.booking), alreadyCancelled: result.alreadyCancelled };
+}
+
+
+export async function rescheduleBooking(customerId, bookingId, input) {
+  const customer = await getCustomerWithZone(customerId);
+  const zoneId = customer.zone._id;
+  const customerLocation = customer.location ?? customer.zone.center;
+
+  const now = new Date();
+  const newStart = resolveScheduledStart(input.startTime, now);
+  const newEnd = addMinutes(newStart, bookingConfig.sessionMinutes);
+  const dateKey = toLocal(newStart).dateKey;
+  const newPrice = calculatePrice(newStart);
+  const explicitTrainerId = input.preferredTrainerId ?? null;
+
+  let outcome = null;
+  let noTrainer = false;
+
+  await mongoose.connection.transaction(async (session) => {
+    outcome = null; // the callback can run again after a write conflict
+    noTrainer = false;
+
+    await lockUser(customer._id, session);
+
+    const booking = await Booking.findOne({ _id: bookingId, customer: customer._id }).session(
+      session
+    );
+    if (!booking) throw new AppError("Booking not found", 404);
+
+    if (booking.status !== BOOKING_STATUS.CONFIRMED) {
+      throw new AppError("Only upcoming sessions can be rescheduled", 409, {
+        code: "NOT_RESCHEDULABLE",
+      });
+    }
+
+    // A retry of a reschedule that already went through changes nothing
+    if (booking.startTime.getTime() === newStart.getTime()) {
+      outcome = { bookingId: booking._id, unchanged: true };
+      return;
+    }
+
+    const notice = booking.startTime.getTime() - now.getTime();
+    if (notice < bookingConfig.rescheduleNoticeMinutes * MINUTE_MS) {
+      throw new AppError(
+        `Sessions can only be rescheduled at least ${bookingConfig.rescheduleNoticeMinutes} minutes before they start`,
+        409,
+        { code: "TOO_LATE_TO_RESCHEDULE" }
+      );
+    }
+
+    if ((booking.rescheduleHistory?.length ?? 0) >= bookingConfig.maxReschedules) {
+      throw new AppError(
+        `A session can be rescheduled at most ${bookingConfig.maxReschedules} times`,
+        409,
+        { code: "RESCHEDULE_LIMIT" }
+      );
+    }
+
+    // Card sessions keep the price they paid, so they can only move to the same price type
+    const isPackage = booking.payment.method === PAYMENT_METHODS.PACKAGE;
+    if (!isPackage && newPrice.slotType !== booking.price.slotType) {
+      throw new AppError(
+        "A card-paid session can only move to a slot with the same price type (normal or peak). Cancel and rebook instead.",
+        409,
+        { code: "PRICE_TYPE_MISMATCH" }
+      );
+    }
+
+    const clash = await Booking.exists({
+      _id: { $ne: booking._id },
+      customer: customer._id,
+      status: { $in: ACTIVE_BOOKING_STATUSES },
+      startTime: { $lt: newEnd },
+      endTime: { $gt: newStart },
+    }).session(session);
+    if (clash) {
+      throw new AppError("You already have a session that overlaps this time", 409, {
+        code: "CUSTOMER_OVERLAP",
+      });
+    }
+
+    // The booking being moved is left out, so its old slot never blocks its new one
+    const data = await loadSchedulingData(
+      zoneId,
+      istDayStart(dateKey),
+      istDayEnd(dateKey),
+      session,
+      booking._id
+    );
+    const eligible = findEligibleTrainers(data, newStart, newEnd);
+    if (eligible.length === 0) {
+      noTrainer = true;
+      return;
+    }
+
+    // Keep the current trainer when free, unless the customer named a different one
+    const currentTrainerId = String(booking.trainer);
+    const keepCurrent = !explicitTrainerId && eligible.some((item) => item.id === currentTrainerId);
+
+    const { trainer, reason } = chooseTrainer({
+      eligible,
+      customerLocation,
+      preferredTrainerId: keepCurrent ? currentTrainerId : explicitTrainerId,
+      slotStart: newStart,
+    });
+
+    let assignment = reason;
+    if (keepCurrent) {
+      assignment = {
+        ...reason,
+        strategy: "kept_current_trainer",
+        preferredTrainer: null,
+        preferredHonoured: false,
+        summary: `Kept your current trainer for the new time (${reason.distanceKm} km away).`,
+      };
+    } else if (!explicitTrainerId) {
+      assignment = {
+        ...reason,
+        summary: `Your previous trainer was not available at the new time. ${reason.summary}`,
+      };
+    }
+
+    await lockTrainer(trainer.id, session);
+
+    // Conditional update: a cancel or another reschedule that got here first makes this fail
+    const updated = await Booking.findOneAndUpdate(
+      { _id: booking._id, status: BOOKING_STATUS.CONFIRMED, startTime: booking.startTime },
+      {
+        $set: {
+          startTime: newStart,
+          endTime: newEnd,
+          trainer: trainer.id,
+          assignment,
+          ...(isPackage && { price: newPrice }),
+        },
+        $push: {
+          rescheduleHistory: {
+            previousStartTime: booking.startTime,
+            previousEndTime: booking.endTime,
+            previousTrainer: booking.trainer,
+            rescheduledAt: now,
+          },
+        },
+      },
+      { session, returnDocument: "after" }
+    );
+    if (!updated) throw new AppError("This booking was just changed. Please refresh.", 409);
+
+    if (trainer.id === currentTrainerId) {
+      await notifyRescheduled(session, {
+        trainerUserId: trainer.userId,
+        bookingId: booking._id,
+        customerName: customer.name,
+        previousStartTime: booking.startTime,
+        startTime: newStart,
+      });
+    } else {
+      const previousUserId = await getTrainerUserId(booking.trainer, session);
+      if (previousUserId) {
+        await notifyMovedAway(session, {
+          trainerUserId: previousUserId,
+          bookingId: booking._id,
+          customerName: customer.name,
+          previousStartTime: booking.startTime,
+        });
+      }
+      await notifyAssigned(session, {
+        trainerUserId: trainer.userId,
+        bookingId: booking._id,
+        customerName: customer.name,
+        startTime: newStart,
+      });
+    }
+
+    outcome = { bookingId: booking._id, unchanged: false };
+  });
+
+  if (noTrainer) {
+    const alternatives = await findAlternativeSlots(zoneId, newStart);
+    throw new AppError(
+      "No trainer is available for the new time. Your current booking is unchanged.",
+      409,
+      { code: "NO_TRAINER_AVAILABLE", alternatives }
+    );
+  }
+
+  const fresh = await Booking.findById(outcome.bookingId).populate(POPULATE_TRAINER).lean();
+  return { booking: serializeBooking(fresh), unchanged: outcome.unchanged };
 }

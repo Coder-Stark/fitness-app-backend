@@ -7,4 +7,6 @@ export const bookingConfig = Object.freeze({
   maxAdvanceDays: 7,
   alternativeSlotsLimit: 5,
   freeCancellationMinutes: 120, // cancel at least this long before start to get a refund
+  rescheduleNoticeMinutes: 120, // a session can be moved only this long before its start
+  maxReschedules: 2,
 });

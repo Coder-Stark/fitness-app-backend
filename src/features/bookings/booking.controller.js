@@ -19,6 +19,15 @@ export async function cancel(req, res) {
   res.json(result);
 }
 
+export async function reschedule(req, res) {
+  const result = await bookingService.rescheduleBooking(
+    req.user.id,
+    req.validated.params.id,
+    req.body
+  );
+  res.json(result);
+}
+
 export async function mine(req, res) {
   const bookings = await bookingService.listMyBookings(req.user.id);
   res.json({ bookings });

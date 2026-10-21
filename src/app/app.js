@@ -9,6 +9,7 @@ import availabilityRoutes from "../features/availability/availability.routes.js"
 import slotRoutes from "../features/slots/slot.routes.js";
 import bookingRoutes from "../features/bookings/booking.routes.js";
 import packageRoutes from "../features/packages/package.routes.js";
+import notificationRoutes from "../features/notifications/notification.routes.js";
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/availability", availabilityRoutes);
 app.use("/api/slots", slotRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/packages", packageRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

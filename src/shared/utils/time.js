@@ -25,3 +25,14 @@ export function toMinutes(hhmm) {
 }
 
 export const overlaps = (aStart, aEnd, bStart, bEnd) => aStart < bEnd && bStart < aEnd;
+
+const slotFormatter = new Intl.DateTimeFormat("en-IN", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "Asia/Kolkata",
+});
+
+export const formatSlot = (date) => `${slotFormatter.format(date)} IST`;
