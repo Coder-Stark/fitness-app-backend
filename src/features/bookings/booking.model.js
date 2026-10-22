@@ -71,6 +71,18 @@ const rescheduleSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const timerSchema = new mongoose.Schema(
+  {
+    startedAt: { type: Date, required: true },
+    warningAt: { type: Date, required: true },
+    endsAt: { type: Date, required: true },
+    startedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    warningSentAt: { type: Date, default: null },
+    completedAt: { type: Date, default: null }, // when the end was processed. endsAt is the authoritative end
+  },
+  { _id: false }
+);
+
 const bookingSchema = new mongoose.Schema(
   {
     customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -85,12 +97,14 @@ const bookingSchema = new mongoose.Schema(
     payment: { type: paymentInfoSchema, required: true },
     cancellation: { type: cancellationSchema, default: null },
     rescheduleHistory: { type: [rescheduleSchema], default: [] },
+    timer: { type: timerSchema, default: null },
   },
   { timestamps: true }
 );
 
 bookingSchema.index({ trainer: 1, status: 1, startTime: 1 });
 bookingSchema.index({ customer: 1, status: 1, startTime: 1 });
+bookingSchema.index({ status: 1, "timer.endsAt": 1 });
 
 bookingSchema.statics.findActiveForTrainers = function (
   trainerIds,

@@ -23,6 +23,7 @@ import {
   hashRequest,
 } from "../payments/payment.service.js";
 import { calculatePrice } from "../pricing/pricing.service.js";
+import { getSessionPhase } from "../sessions/session.state.js";
 import { computeInstantStart, findAlternativeSlots } from "../slots/slot.service.js";
 import {
   notifyAssigned,
@@ -49,6 +50,15 @@ function serializeBooking(booking) {
     startTime: booking.startTime,
     endTime: booking.endTime,
     status: booking.status,
+    phase: getSessionPhase(booking),
+    timer: booking.timer
+      ? {
+          startedAt: booking.timer.startedAt,
+          warningAt: booking.timer.warningAt,
+          endsAt: booking.timer.endsAt,
+          completedAt: booking.timer.completedAt,
+        }
+      : null,
     price: booking.price,
     assignment: booking.assignment,
     payment: booking.payment

@@ -65,6 +65,61 @@ export const notifyMovedAway = (
     booking: bookingId,
   });
 
+export const notifySessionStarted = (session, { customerId, trainerName, bookingId }) =>
+  create(session, {
+    recipient: customerId,
+    type: NOTIFICATION_TYPES.SESSION_STARTED,
+    title: "Your session has started",
+    message: `${trainerName} started your session. Have a great workout!`,
+    booking: bookingId,
+  });
+
+export async function notifySessionWarning(
+  session,
+  { trainerUserId, customerId, trainerName, customerName, bookingId, minutesLeft }
+) {
+  const unit = minutesLeft === 1 ? "minute" : "minutes";
+
+  if (trainerUserId) {
+    await create(session, {
+      recipient: trainerUserId,
+      type: NOTIFICATION_TYPES.SESSION_WARNING,
+      title: "Session ending soon",
+      message: `${minutesLeft} ${unit} left in your session with ${customerName}.`,
+      booking: bookingId,
+    });
+  }
+  await create(session, {
+    recipient: customerId,
+    type: NOTIFICATION_TYPES.SESSION_WARNING,
+    title: "Session ending soon",
+    message: `${minutesLeft} ${unit} left in your session with ${trainerName}.`,
+    booking: bookingId,
+  });
+}
+
+export async function notifySessionCompleted(
+  session,
+  { trainerUserId, customerId, trainerName, customerName, bookingId }
+) {
+  if (trainerUserId) {
+    await create(session, {
+      recipient: trainerUserId,
+      type: NOTIFICATION_TYPES.SESSION_COMPLETED,
+      title: "Session complete",
+      message: `Your session with ${customerName} is complete.`,
+      booking: bookingId,
+    });
+  }
+  await create(session, {
+    recipient: customerId,
+    type: NOTIFICATION_TYPES.SESSION_COMPLETED,
+    title: "Session complete",
+    message: `Your session with ${trainerName} is complete. Great work!`,
+    booking: bookingId,
+  });
+}
+
 export async function listForUser(userId, { unreadOnly, limit }) {
   const filter = { recipient: userId, ...(unreadOnly && { readAt: null }) };
 

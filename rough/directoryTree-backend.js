@@ -56,11 +56,21 @@ src
  ┃ ┃ ┣ pricing.routes.js
  ┃ ┃ ┣ pricing.service.js
  ┃ ┃ ┗ pricing.validation.js
+ ┃ ┣ sessions
+ ┃ ┃ ┣ session.config.js
+ ┃ ┃ ┣ session.controller.js
+ ┃ ┃ ┣ session.routes.js
+ ┃ ┃ ┣ session.service.js
+ ┃ ┃ ┣ session.state.js
+ ┃ ┃ ┗ session.worker.js
  ┃ ┣ slots
  ┃ ┃ ┣ slot.controller.js
  ┃ ┃ ┣ slot.routes.js
  ┃ ┃ ┣ slot.service.js
  ┃ ┃ ┗ slot.validation.js
+ ┃ ┣ time
+ ┃ ┃ ┣ time.controller.js
+ ┃ ┃ ┗ time.routes.js
  ┃ ┣ trainers
  ┃ ┃ ┣ trainer.model.js
  ┃ ┃ ┗ trainer.service.js

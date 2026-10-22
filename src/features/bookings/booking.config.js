@@ -1,5 +1,6 @@
 export const bookingConfig = Object.freeze({
-  sessionMinutes: 60,
+  // sessionMinutes: 60,         //shrink for testing only
+  sessionMinutes: 4,
   slotStepMinutes: 60, // scheduled slots start on this grid (must divide 1440)
   instantLeadMinutes: 15, // trainer travel buffer for instant bookings
   instantRoundMinutes: 5,

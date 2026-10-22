@@ -25,3 +25,7 @@ export async function getTrainerUserId(trainerId, session = null) {
   const trainer = await Trainer.findById(trainerId).select("user").session(session).lean();
   return trainer?.user ?? null;
 }
+
+export function getTrainerWithUser(trainerId, session = null) {
+  return Trainer.findById(trainerId).populate("user", "name").session(session).lean();
+}
