@@ -1,4 +1,5 @@
 1. create 1 main folder -> fitness
+
 2. created 2 sub-folder -> fitness-app(client) and fitness-app-backend (server)
 
 3. first i am going to build backend then i am going to build frontend
