@@ -180,3 +180,18 @@ export async function listAssigned(trainerUserId) {
   const trainer = await getTrainerProfileOrThrow(trainerUserId);
   return listCompleted({ trainer: trainer._id });
 }
+
+// Used by the workout recommendation: the customer's newest records, trainer notes and feedback included
+export async function getRecentRecordsForCustomer(customerId, limit) {
+  const records = await SessionRecord.find({ customer: customerId })
+    .sort({ sessionDate: -1 })
+    .limit(limit)
+    .lean();
+  return records.map(serializeRecord);
+}
+
+export const countCompletedForCustomer = (customerId) =>
+  Booking.countDocuments({
+    customer: customerId,
+    ...getPhaseFilter(SESSION_PHASES.COMPLETED, new Date()),
+  });

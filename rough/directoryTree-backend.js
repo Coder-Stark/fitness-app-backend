@@ -68,6 +68,13 @@ src
  ┃ ┃ ┣ pricing.routes.js
  ┃ ┃ ┣ pricing.service.js
  ┃ ┃ ┗ pricing.validation.js
+ ┃ ┣ recommendations
+ ┃ ┃ ┣ recommendation.catalog.js
+ ┃ ┃ ┣ recommendation.config.js
+ ┃ ┃ ┣ recommendation.controller.js
+ ┃ ┃ ┣ recommendation.routes.js
+ ┃ ┃ ┣ recommendation.rules.js
+ ┃ ┃ ┗ recommendation.service.js
  ┃ ┣ sessionRecords
  ┃ ┃ ┣ sessionRecord.controller.js
  ┃ ┃ ┣ sessionRecord.model.js

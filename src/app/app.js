@@ -15,6 +15,7 @@ import timeRoutes from "../features/time/time.routes.js";
 import fitnessProfileRoutes from "../features/fitnessProfiles/fitnessProfile.routes.js";
 import sessionRecordRoutes from "../features/sessionRecords/sessionRecord.routes.js";
 import adminRoutes from "../features/admin/admin.routes.js";
+import recommendationRoutes from "../features/recommendations/recommendation.routes.js";
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use("/api/time", timeRoutes);
 app.use("/api/fitness-profile", fitnessProfileRoutes);
 app.use("/api/session-records", sessionRecordRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
