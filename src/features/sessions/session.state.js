@@ -25,6 +25,34 @@ export function getSessionPhase(booking, now = new Date()) {
   return SESSION_PHASES.SCHEDULED;
 }
 
+// The same phase rules as getSessionPhase, written as a database filter. Keeping both here
+// means a list filtered by phase always matches the phase shown on screen.
+export function getPhaseFilter(phase, now = new Date()) {
+  switch (phase) {
+    case SESSION_PHASES.SCHEDULED:
+      return { status: BOOKING_STATUS.CONFIRMED };
+    case SESSION_PHASES.IN_PROGRESS:
+      return { status: BOOKING_STATUS.IN_PROGRESS, "timer.warningAt": { $gt: now } };
+    case SESSION_PHASES.ENDING_SOON:
+      return {
+        status: BOOKING_STATUS.IN_PROGRESS,
+        "timer.warningAt": { $lte: now },
+        "timer.endsAt": { $gt: now },
+      };
+    case SESSION_PHASES.COMPLETED:
+      return {
+        $or: [
+          { status: BOOKING_STATUS.COMPLETED },
+          { status: BOOKING_STATUS.IN_PROGRESS, "timer.endsAt": { $lte: now } },
+        ],
+      };
+    case SESSION_PHASES.CANCELLED:
+      return { status: BOOKING_STATUS.CANCELLED };
+    default:
+      return {};
+  }
+}
+
 export function getStartWindow(booking) {
   return {
     opensAt: addMinutes(booking.startTime, -sessionConfig.startWindowBeforeMinutes),

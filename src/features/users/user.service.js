@@ -26,6 +26,8 @@ export async function getCustomerWithZone(userId) {
 
 export const lockUser = (userId, session) => lockDocument(User, userId, session);
 
+export const countUsersByRole = (role) => User.countDocuments({ role });
+
 export function toPublicUser(user) {
   return {
     id: user._id,

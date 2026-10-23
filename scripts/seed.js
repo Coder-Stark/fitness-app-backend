@@ -10,6 +10,8 @@ import { Booking } from "../src/features/bookings/booking.model.js";
 import { Payment } from "../src/features/payments/payment.model.js";
 import { Package } from "../src/features/packages/package.model.js";
 import { Notification } from "../src/features/notifications/notification.model.js";
+import { FitnessProfile } from "../src/features/fitnessProfiles/fitnessProfile.model.js";
+import { SessionRecord } from "../src/features/sessionRecords/sessionRecord.model.js";
 
 const DEMO_PASSWORD = "Demo@1234";
 
@@ -28,6 +30,8 @@ async function seed() {
   await connectDB();
 
   await Promise.all([
+    SessionRecord.deleteMany({}),
+    FitnessProfile.deleteMany({}),
     Notification.deleteMany({}),
     Payment.deleteMany({}),
     Package.deleteMany({}),
@@ -106,9 +110,48 @@ async function seed() {
     { name: "Isha Reddy", email: "isha.customer@demo.com", zone: 2, offset: [0.001, 0.003] },
   ];
 
+  const demoProfiles = {
+    "customer@demo.com": {
+      age: 29,
+      weightKg: 78.5,
+      goals: ["weight_loss", "endurance"],
+      level: "beginner",
+      preferences: {
+        workoutTypes: ["cardio", "functional"],
+        intensity: "moderate",
+        equipment: "basic",
+        healthNotes: "Mild lower back stiffness. Avoid heavy deadlifts.",
+      },
+    },
+    "diya.customer@demo.com": {
+      age: 34,
+      weightKg: 62,
+      goals: ["muscle_gain"],
+      level: "intermediate",
+      preferences: {
+        workoutTypes: ["strength", "hiit"],
+        intensity: "high",
+        equipment: "full_gym",
+        healthNotes: "",
+      },
+    },
+    "kabir.customer@demo.com": {
+      age: 41,
+      weightKg: 85.2,
+      goals: ["general_fitness", "flexibility"],
+      level: "beginner",
+      preferences: {
+        workoutTypes: ["yoga", "stretching"],
+        intensity: "low",
+        equipment: "none",
+        healthNotes: "Recovering from a minor knee strain.",
+      },
+    },
+  };
+
   for (const c of customerData) {
     const zone = zones[c.zone];
-    await User.create({
+    const customer = await User.create({
       name: c.name,
       email: c.email,
       passwordHash,
@@ -116,6 +159,10 @@ async function seed() {
       zone: zone._id,
       location: near(zone.center, ...c.offset),
     });
+
+    if (demoProfiles[c.email]) {
+      await FitnessProfile.create({ customer: customer._id, ...demoProfiles[c.email] });
+    }
   }
 
   console.log("Seed complete");

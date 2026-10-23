@@ -11,6 +11,11 @@ src
  ┃ ┣ app.js
  ┃ ┗ server.js
  ┣ features
+ ┃ ┣ admin
+ ┃ ┃ ┣ admin.controller.js
+ ┃ ┃ ┣ admin.routes.js
+ ┃ ┃ ┣ admin.service.js
+ ┃ ┃ ┗ admin.validation.js
  ┃ ┣ assignment
  ┃ ┃ ┗ assignment.service.js
  ┃ ┣ auth
@@ -32,6 +37,13 @@ src
  ┃ ┃ ┣ booking.routes.js
  ┃ ┃ ┣ booking.service.js
  ┃ ┃ ┗ booking.validation.js
+ ┃ ┣ fitnessProfiles
+ ┃ ┃ ┣ fitnessProfile.constants.js
+ ┃ ┃ ┣ fitnessProfile.controller.js
+ ┃ ┃ ┣ fitnessProfile.model.js
+ ┃ ┃ ┣ fitnessProfile.routes.js
+ ┃ ┃ ┣ fitnessProfile.service.js
+ ┃ ┃ ┗ fitnessProfile.validation.js
  ┃ ┣ notifications
  ┃ ┃ ┣ notification.constants.js
  ┃ ┃ ┣ notification.controller.js
@@ -56,6 +68,12 @@ src
  ┃ ┃ ┣ pricing.routes.js
  ┃ ┃ ┣ pricing.service.js
  ┃ ┃ ┗ pricing.validation.js
+ ┃ ┣ sessionRecords
+ ┃ ┃ ┣ sessionRecord.controller.js
+ ┃ ┃ ┣ sessionRecord.model.js
+ ┃ ┃ ┣ sessionRecord.routes.js
+ ┃ ┃ ┣ sessionRecord.service.js
+ ┃ ┃ ┗ sessionRecord.validation.js
  ┃ ┣ sessions
  ┃ ┃ ┣ session.config.js
  ┃ ┃ ┣ session.controller.js
@@ -100,6 +118,7 @@ src
  ┃ ┃ ┣ AppError.js
  ┃ ┃ ┣ geo.js
  ┃ ┃ ┣ lock.js
+ ┃ ┃ ┣ retry.js
  ┃ ┃ ┣ time.js
  ┃ ┃ ┗ token.js
 

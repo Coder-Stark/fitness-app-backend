@@ -12,6 +12,9 @@ import packageRoutes from "../features/packages/package.routes.js";
 import notificationRoutes from "../features/notifications/notification.routes.js";
 import sessionRoutes from "../features/sessions/session.routes.js";
 import timeRoutes from "../features/time/time.routes.js";
+import fitnessProfileRoutes from "../features/fitnessProfiles/fitnessProfile.routes.js";
+import sessionRecordRoutes from "../features/sessionRecords/sessionRecord.routes.js";
+import adminRoutes from "../features/admin/admin.routes.js";
 
 const app = express();
 
@@ -33,6 +36,9 @@ app.use("/api/packages", packageRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/time", timeRoutes);
+app.use("/api/fitness-profile", fitnessProfileRoutes);
+app.use("/api/session-records", sessionRecordRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

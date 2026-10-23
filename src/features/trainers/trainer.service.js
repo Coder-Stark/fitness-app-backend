@@ -29,3 +29,5 @@ export async function getTrainerUserId(trainerId, session = null) {
 export function getTrainerWithUser(trainerId, session = null) {
   return Trainer.findById(trainerId).populate("user", "name").session(session).lean();
 }
+
+export const countActiveTrainers = () => Trainer.countDocuments({ isActive: true });
