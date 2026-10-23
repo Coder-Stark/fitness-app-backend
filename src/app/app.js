@@ -40,6 +40,9 @@ app.use("/api/time", timeRoutes);
 app.use("/api/fitness-profile", fitnessProfileRoutes);
 app.use("/api/session-records", sessionRecordRoutes);
 app.use("/api/admin", adminRoutes);
+
+console.log("Registering recommendations route");
+
 app.use("/api/recommendations", recommendationRoutes);
 
 app.use(notFound);

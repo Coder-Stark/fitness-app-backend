@@ -8,6 +8,11 @@ const router = Router();
 
 router.use(requireAuth, requireRole(ROLES.CUSTOMER));
 
-router.get("/me", getMine);
+// router.get("/me", getMine);
+
+router.get("/me", (req, res, next) => {
+  console.log("GET /api/recommendations/me reached");
+  next();
+}, getMine);
 
 export default router;
